@@ -1,0 +1,16 @@
+name: 🚀 CI/CD Global
+on:
+  pull_request:
+    branches: [develop]
+permissions:
+  checks: write
+  pull-requests: write
+  contents: write
+jobs:
+  cicd:
+    uses: BEstr-Fullm4n/global-ci-cd/.github/workflows/cicd-template.yml@master
+    with:
+      artifact-prefix: 'gitactionsJava2'  # ← Cambia aquí
+      java-version: '17'
+      version-prefix: 'v1.0.'
+    secrets: inherit
