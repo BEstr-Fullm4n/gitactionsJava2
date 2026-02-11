@@ -1,16 +1,36 @@
 name: 🚀 CI/CD Global
+
 on:
   pull_request:
     branches: [develop]
+
 permissions:
   checks: write
   pull-requests: write
   contents: write
+
 jobs:
+  # Job para leer artifactId del pom.xml
+  read-artifactid:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact_id: ${{ steps.get-artifact.outputs.artifact_id }}
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Obtener artifactId del pom.xml
+        id: get-artifact
+        run: |
+          ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
+          echo "artifact_id=$ARTIFACT_ID" >> $GITHUB_OUTPUT
+
+  # Job que llama al workflow reusable
   cicd:
+    needs: read-artifactid
     uses: BEstr-Fullm4n/global-ci-cd/.github/workflows/cicd-template.yml@master
     with:
-      artifact-prefix: 'gitactionsJava2'  # ← Cambia aquí
+      artifact-prefix: ${{ needs.read-artifactid.outputs.artifact_id }}
       java-version: '17'
       version-prefix: 'v1.0.'
     secrets: inherit
